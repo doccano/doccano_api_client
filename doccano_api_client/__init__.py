@@ -161,6 +161,7 @@ class DoccanoClient(_Router):
     def __init__(self, baseurl: str, username: str, password: str):
         self.baseurl = baseurl if baseurl[-1] == "/" else baseurl + "/"
         self.session = requests.Session()
+        self.session.headers = {"referer": self.baseurl}
         self._login(username, password)
 
     def _login(self, username: str, password: str) -> requests.models.Response:
