@@ -67,8 +67,8 @@ class ExampleRepository:
                 # This can happen if doccano is hosted behind a reverse proxy. Thus, we use the client's
                 # base url
                 if not response.headers.get('content-type') == 'application/json': 
-                    client_netloc = urlparse(self._client._base_url).netloc
-                    next_url = urlparse(examples["next"])._replace(netloc=client_netloc).get_url()
+                    client_url_parsed = urlparse(self._client._base_url)
+                    next_url = urlparse(examples["next"])._replace(scheme=client_url_parsed.scheme, netloc=client_url_parsed.netloc).geturl()
                     response = self._client.get(next_url)
 
     def create(self, project_id: int, example: Example) -> Example:
