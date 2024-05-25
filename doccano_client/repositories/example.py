@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Iterator, List, Optional
+from urllib.parse import urlparse
 
 from doccano_client.models.example import Example
 from doccano_client.repositories.base import BaseRepository
@@ -60,7 +61,15 @@ class ExampleRepository:
             if examples["next"] is None:
                 break
             else:
-                response = self._client.get(examples["next"])
+                next_url = examples["next"]
+                response = self._client.get(next_url)
+                # If the response we got is not json parseable, most likely the hostname was set wrongly. 
+                # This can happen if doccano is hosted behind a reverse proxy. Thus, we use the client's
+                # base url
+                if not response.headers.get('content-type') == 'application/json': 
+                    client_netloc = urlparse(self._client._base_url).netloc
+                    next_url = urlparse(examples["next"])._replace(netloc=client_netloc).get_url()
+                    response = self._client.get(next_url)
 
     def create(self, project_id: int, example: Example) -> Example:
         """Create a new example
